@@ -7,69 +7,89 @@
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {margin: 0; padding: 0; box-sizing: border-box;}
-        body { font-family: 'Hind Siliguri', sans-serif; background: #0f172a; color: #e2e8f0; display: flex; flex-direction: column; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #0f172a; color: #e2e8f0; display: flex; }
         
-        /* Sidebar/Nav */
+        /* Sidebar */
         .sidebar { width: 260px; background: #1e293b; height: 100vh; position: fixed; padding: 20px; border-right: 1px solid #334155; }
-        .main-content { margin-left: 260px; padding: 30px; min-height: 100vh; }
-        
-        h1 { color: #22c55e; margin-bottom: 25px; font-size: 22px; border-left: 4px solid #22c55e; padding-left: 10px; }
+        .sidebar h2 { color: #22c55e; text-align: center; margin-bottom: 30px; font-size: 20px; }
         .nav-item { padding: 12px 15px; color: #94a3b8; cursor: pointer; border-radius: 10px; margin-bottom: 8px; font-weight: 600; transition: 0.3s; }
         .nav-item:hover, .nav-item.active { background: #22c55e; color: white; }
 
-        /* Tables */
-        .section { display: none; background: #1e293b; padding: 20px; border-radius: 15px; border: 1px solid #334155; }
-        .section.active { display: block; animation: fadeIn 0.5s; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #334155; font-size: 14px; }
-        th { color: #22c55e; background: #0f172a; }
+        /* Main Content */
+        .main-content { margin-left: 260px; padding: 30px; width: calc(100% - 260px); }
+        .section { display: none; background: #1e293b; padding: 25px; border-radius: 15px; border: 1px solid #334155; animation: fadeIn 0.4s; }
+        .section.active { display: block; }
         
-        /* Buttons & Badges */
-        .btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s; }
-        .btn-approve { background: #22c55e; color: white; }
+        h1 { font-size: 22px; color: #fff; margin-bottom: 20px; border-left: 4px solid #22c55e; padding-left: 10px; }
+
+        /* Task Control Box */
+        .config-box { background: #0f172a; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px dashed #22c55e; }
+        .config-box input { width: 70%; padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: white; margin-right: 10px; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 14px; }
+        th { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+        
+        /* Buttons */
+        .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; transition: 0.2s; }
+        .btn-save { background: #22c55e; color: white; }
         .btn-ban { background: #ef4444; color: white; }
         .btn-unban { background: #3b82f6; color: white; }
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; text-transform: uppercase; margin-left: 5px; }
+        .btn-approve { background: #10b981; color: white; }
 
-        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
         @media (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; }
-            .main-content { margin-left: 0; }
+            .sidebar { width: 70px; padding: 10px; }
+            .sidebar h2, .nav-item span { display: none; }
+            .main-content { margin-left: 70px; width: calc(100% - 70px); }
         }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h2 style="color: white; margin-bottom: 30px; text-align: center;">ADMIN PANEL</h2>
-        <div class="nav-item active" onclick="showSection('usersSec', this)">👥 ইউজার কন্ট্রোল</div>
-        <div class="nav-item" onclick="showSection('depositSec', this)">📥 ডিপোজিট (Pending)</div>
-        <div class="nav-item" onclick="showSection('withdrawSec', this)">📤 উইথড্র (Pending)</div>
+        <h2>ADMIN PANEL</h2>
+        <div class="nav-item active" onclick="showSection('taskSec', this)">🎯 টাস্ক সেটিংস</div>
+        <div class="nav-item" onclick="showSection('userSec', this)">👥 ইউজার ম্যানেজ</div>
+        <div class="nav-item" onclick="showSection('depSec', this)">📥 ডিপোজিট লিস্ট</div>
+        <div class="nav-item" onclick="showSection('witSec', this)">📤 উইথড্র লিস্ট</div>
     </div>
 
     <div class="main-content">
-        <div id="usersSec" class="section active">
-            <h1>সকল ইউজার ও পাসওয়ার্ড</h1>
+        
+        <div id="taskSec" class="section active">
+            <h1>ডেইলি টাস্ক কন্ট্রোল</h1>
+            <div class="config-box">
+                <p style="margin-bottom: 10px; color: #94a3b8;">ইউজারের জন্য কাজের লিংক দিন:</p>
+                <input type="text" id="taskUrlInput" placeholder="https://youtube.com/c/yourlink">
+                <button class="btn btn-save" onclick="updateTaskLink()">লিংক আপডেট করুন</button>
+            </div>
+            <p style="font-size: 13px; color: #64748b;">* ইউজার লিংকে ক্লিক করে ৫ সেকেন্ড থাকলেই তার ব্যালেন্সে ১০ টাকা অটো যোগ হবে।</p>
+        </div>
+
+        <div id="userSec" class="section">
+            <h1>ইউজার লিস্ট ও পাসওয়ার্ড</h1>
             <table>
                 <thead>
                     <tr>
-                        <th>ইউজার</th>
+                        <th>ইউজার তথ্য</th>
                         <th>পাসওয়ার্ড</th>
                         <th>ব্যালেন্স</th>
                         <th>অ্যাকশন</th>
                     </tr>
                 </thead>
-                <tbody id="userTable"></tbody>
+                <tbody id="userTableBody"></tbody>
             </table>
         </div>
 
-        <div id="depositSec" class="section">
-            <h1>ডিপোজিট রিকোয়েস্ট</h1>
+        <div id="depSec" class="section">
+            <h1>ডিপোজিট রিকোয়েস্ট (Pending)</h1>
             <table>
                 <thead>
                     <tr>
-                        <th>ইউজার</th>
-                        <th>টাকা</th>
+                        <th>ইমেল</th>
+                        <th>পরিমাণ</th>
                         <th>TrxID</th>
                         <th>অ্যাকশন</th>
                     </tr>
@@ -78,13 +98,13 @@
             </table>
         </div>
 
-        <div id="withdrawSec" class="section">
-            <h1>উইথড্র রিকোয়েস্ট</h1>
+        <div id="witSec" class="section">
+            <h1>উইথড্র রিকোয়েস্ট (Pending)</h1>
             <table>
                 <thead>
                     <tr>
-                        <th>ইউজার</th>
-                        <th>টাকা</th>
+                        <th>ইমেল</th>
+                        <th>পরিমাণ</th>
                         <th>নাম্বার</th>
                         <th>অ্যাকশন</th>
                     </tr>
@@ -92,11 +112,12 @@
                 <tbody id="withdrawTable"></tbody>
             </table>
         </div>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyByoyfmwZJyIwYj09NdLwHLpsAVZ0joZq4",
@@ -104,35 +125,47 @@
             projectId: "investmentc12-887a8",
             storageBucket: "investmentc12-887a8.firebasestorage.app",
             messagingSenderId: "235522350741",
-            appId: "1:235522350741:web:c1c5b9417dd3875e7d059c",
-            measurementId: "G-55RG4PR7ZF"
+            appId: "1:235522350741:web:c1c5b9417dd3875e7d059c"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ১. ইউজার কন্ট্রোল লোড (পাসওয়ার্ড ও ব্যান সহ)
+        // ১. টাস্ক লিংক আপডেট ফাংশন
+        window.updateTaskLink = async () => {
+            const url = document.getElementById('taskUrlInput').value;
+            if(!url) return alert("লিংক দিন!");
+            await setDoc(doc(db, "settings", "taskConfig"), { url: url });
+            alert("টাস্ক লিংক সফলভাবে আপডেট হয়েছে!");
+        };
+
+        // বর্তমান টাস্ক লিংক লোড করা
+        getDoc(doc(db, "settings", "taskConfig")).then(s => {
+            if(s.exists()) document.getElementById('taskUrlInput').value = s.data().url;
+        });
+
+        // ২. ইউজার লিস্ট লোড (পাসওয়ার্ড ও ব্যান সহ)
         onSnapshot(collection(db, "users"), (snap) => {
-            const tbody = document.getElementById('userTable');
+            const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = "";
             snap.forEach(d => {
                 const u = d.data();
-                const banned = u.status === "banned";
+                const isBanned = u.status === "banned";
                 tbody.innerHTML += `
-                    <tr style="${banned ? 'background: #450a0a' : ''}">
-                        <td>${u.name}<br><small>${u.email}</small></td>
-                        <td style="color:#fbbf24">${u.password || 'N/A'}</td>
-                        <td>৳${u.balance}</td>
+                    <tr style="${isBanned ? 'opacity: 0.5; background: #450a0a' : ''}">
+                        <td><b>${u.name}</b><br><small>${u.email}</small></td>
+                        <td style="color:#fbbf24; font-family:monospace;">${u.password || 'N/A'}</td>
+                        <td style="color:#22c55e;">৳${u.balance}</td>
                         <td>
-                            <button class="btn ${banned ? 'btn-unban' : 'btn-ban'}" onclick="toggleBan('${d.id}', '${u.status}')">
-                                ${banned ? 'Unban' : 'Ban'}
+                            <button class="btn ${isBanned ? 'btn-unban' : 'btn-ban'}" onclick="toggleBan('${d.id}', '${u.status}')">
+                                ${isBanned ? 'Unban' : 'Ban'}
                             </button>
                         </td>
                     </tr>`;
             });
         });
 
-        // ২. ডিপোজিট রিকোয়েস্ট লোড
+        // ৩. ডিপোজিট রিকোয়েস্ট ম্যানেজমেন্ট
         onSnapshot(collection(db, "transactions"), (snap) => {
             const tbody = document.getElementById('depositTable');
             tbody.innerHTML = "";
@@ -146,14 +179,14 @@
                             <td>${t.transactionId}</td>
                             <td>
                                 <button class="btn btn-approve" onclick="approveDep('${d.id}', '${t.userId}', ${t.amount})">Approve</button>
-                                <button class="btn btn-ban" onclick="deleteItem('transactions', '${d.id}')">X</button>
+                                <button class="btn btn-ban" onclick="deleteDocItem('transactions', '${d.id}')">Del</button>
                             </td>
                         </tr>`;
                 }
             });
         });
 
-        // ৩. উইথড্র রিকোয়েস্ট লোড
+        // ৪. উইথড্র রিকোয়েস্ট ম্যানেজমেন্ট
         onSnapshot(collection(db, "withdrawals"), (snap) => {
             const tbody = document.getElementById('withdrawTable');
             tbody.innerHTML = "";
@@ -164,34 +197,34 @@
                         <tr>
                             <td>${w.userEmail}</td>
                             <td>৳${w.amount}</td>
-                            <td>${w.number} (${w.method})</td>
+                            <td>${w.number}</td>
                             <td>
-                                <button class="btn btn-approve" onclick="deleteItem('withdrawals', '${d.id}')">Done</button>
+                                <button class="btn btn-approve" onclick="deleteDocItem('withdrawals', '${d.id}')">Done</button>
                             </td>
                         </tr>`;
                 }
             });
         });
 
-        // ফায়ারবেস ফাংশনসমূহ
+        // ফায়ারবেস অ্যাকশন ফাংশনসমূহ
         window.toggleBan = async (id, s) => {
             const newStatus = s === 'banned' ? 'active' : 'banned';
-            if(confirm(`ইউজারকে ${newStatus === 'banned' ? 'ব্যান' : 'আনব্যান'} করতে চান?`)) {
-                await updateDoc(doc(db, "users", id), { status: newStatus });
-            }
+            await updateDoc(doc(db, "users", id), { status: newStatus });
         };
 
         window.approveDep = async (docId, uId, amt) => {
             if(confirm("টাকা ব্যালেন্সে যোগ করবেন?")) {
                 await updateDoc(doc(db, "users", uId), { balance: increment(amt) });
                 await deleteDoc(doc(db, "transactions", docId));
+                alert("অ্যাপ্রুভড!");
             }
         };
 
-        window.deleteItem = async (col, id) => {
-            if(confirm("এটি ডিলিট করতে চান?")) await deleteDoc(doc(db, col, id));
+        window.deleteDocItem = async (col, id) => {
+            if(confirm("নিশ্চিত তো?")) await deleteDoc(doc(db, col, id));
         };
 
+        // UI কন্ট্রোল
         window.showSection = (id, el) => {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
