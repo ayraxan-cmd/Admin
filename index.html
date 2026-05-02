@@ -9,34 +9,22 @@
         :root { --green: #22c55e; --red: #ef4444; --blue: #3b82f6; --bg: #0f172a; --card: #1e293b; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
         body { background: var(--bg); color: white; padding-bottom: 50px; }
-
         .header { background: var(--card); padding: 20px; text-align: center; border-bottom: 2px solid var(--green); position: sticky; top: 0; z-index: 100; }
-        
         .nav-tabs { display: flex; overflow-x: auto; background: var(--card); padding: 10px; gap: 10px; border-bottom: 1px solid #334155; }
         .tab-btn { padding: 10px 20px; border: none; border-radius: 10px; background: #334155; color: #cbd5e1; white-space: nowrap; cursor: pointer; font-weight: 600; }
         .tab-btn.active { background: var(--green); color: white; }
-
         .container { padding: 15px; max-width: 600px; margin: 0 auto; }
-        .section { display: none; animation: fadeIn 0.3s ease; }
-        .section.active { display: block; }
-
-        .card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #334155; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        .card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .card p { font-size: 14px; margin-bottom: 5px; color: #cbd5e1; }
         .card b { color: white; }
-        
         .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
         .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; min-width: 80px; }
         .btn-approve { background: var(--green); color: white; }
         .btn-reject { background: var(--red); color: white; }
-        .btn-action { background: #64748b; color: white; }
-
         .input-group { background: var(--card); padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
-        .input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 15px; }
-
-        .status-badge { padding: 2px 8px; border-radius: 5px; font-size: 10px; margin-left: 10px; }
-        .status-active { background: var(--green); }
-        .status-banned { background: var(--red); }
-
+        .input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 15px; outline: none; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -52,37 +40,35 @@
     </div>
 
     <div class="container">
-        
         <div id="depositSec" class="section active">
-            <h3 style="margin-bottom: 15px;">পেন্ডিং ডিপোজিট লিস্ট</h3>
-            <div id="depositList">লোড হচ্ছে...</div>
+            <h3 style="margin-bottom: 15px;">পেন্ডিং ডিপোজিট</h3>
+            <div id="depositList">ডেটা লোড হচ্ছে...</div>
         </div>
 
         <div id="withdrawSec" class="section">
-            <h3 style="margin-bottom: 15px;">পেন্ডিং উইথড্র লিস্ট</h3>
-            <div id="withdrawList">লোড হচ্ছে...</div>
+            <h3 style="margin-bottom: 15px;">পেন্ডিং উইথড্র</h3>
+            <div id="withdrawList">ডেটা লোড হচ্ছে...</div>
         </div>
 
         <div id="userSec" class="section">
-            <h3 style="margin-bottom: 15px;">সকল ইউজার লিস্ট</h3>
-            <div id="userList">লোড হচ্ছে...</div>
+            <h3 style="margin-bottom: 15px;">সকল ইউজার</h3>
+            <div id="userList">ডেটা লোড হচ্ছে...</div>
         </div>
 
         <div id="taskSec" class="section">
-            <h3 style="margin-bottom: 15px;">ডেইলি টাস্ক লিঙ্ক সেটিংস</h3>
+            <h3 style="margin-bottom: 15px;">টাস্ক লিঙ্ক আপডেট</h3>
             <div class="input-group">
-                <input type="text" id="taskUrl" placeholder="নতুন টাস্ক লিঙ্ক দিন (URL)">
-                <button class="btn btn-approve" onclick="updateTask()">লিঙ্ক আপডেট করুন</button>
+                <input type="text" id="taskUrl" placeholder="নতুন টাস্ক লিঙ্ক দিন">
+                <button class="btn btn-approve" onclick="updateTask()">আপডেট করুন</button>
             </div>
-            <p style="font-size: 12px; color: #94a3b8; text-align: center;">* এই লিঙ্কটি সকল ইউজারের অ্যাপে অটোমেটিক আপডেট হয়ে যাবে।</p>
         </div>
-
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, deleteDoc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // ফায়ারবেস কনফিগারেশন (আপনার প্রজেক্টের সাথে মিল থাকতে হবে)
         const firebaseConfig = {
             apiKey: "AIzaSyByoyfmwZJyIwYj09NdLwHLpsAVZ0joZq4",
             authDomain: "investmentc12-887a8.firebaseapp.com",
@@ -95,6 +81,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // ট্যাব সুইচিং লজিক
         window.openTab = (evt, sectionId) => {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -102,116 +89,104 @@
             evt.currentTarget.classList.add('active');
         };
 
-        // --- 1. ডিপোজিট অ্যাপ্রুভ (সাথে একাউন্ট একটিভ) ---
+        // ১. ডিপোজিট রিকোয়েস্ট লোড করা
         onSnapshot(collection(db, "transactions"), (snap) => {
             const list = document.getElementById('depositList');
-            list.innerHTML = "";
+            let content = "";
             snap.forEach(d => {
                 const data = d.data();
                 if(data.status === "pending") {
-                    const div = document.createElement('div');
-                    div.className = "card";
-                    div.innerHTML = `
-                        <p>ইমেল: <b>${data.email}</b></p>
-                        <p>পরিমাণ: <b>৳${data.amount}</b> | TrxID: <b>${data.trxId}</b></p>
-                        <div class="btn-row">
-                            <button class="btn btn-approve" onclick="approveDep('${d.id}', '${data.uid}', ${data.amount})">Approve & Active</button>
-                            <button class="btn btn-reject" onclick="deleteReq('transactions', '${d.id}')">Reject</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
+                    content += `
+                        <div class="card">
+                            <p>ইমেল: <b>${data.email}</b></p>
+                            <p>পরিমাণ: <b>৳${data.amount}</b> | TrxID: <b>${data.trxId}</b></p>
+                            <div class="btn-row">
+                                <button class="btn btn-approve" onclick="approveDep('${d.id}', '${data.uid}', ${data.amount})">Approve & Active</button>
+                                <button class="btn btn-reject" onclick="deleteDocReq('transactions', '${d.id}')">Reject</button>
+                            </div>
+                        </div>`;
                 }
             });
+            list.innerHTML = content || "<p style='text-align:center;'>কোনো পেন্ডিং ডিপোজিট নেই।</p>";
         });
 
         window.approveDep = async (id, uid, amount) => {
             if(!confirm("ব্যালেন্স যোগ এবং একাউন্ট একটিভ করবেন?")) return;
-            await updateDoc(doc(db, "users", uid), { balance: increment(amount), active: true });
-            await updateDoc(doc(db, "transactions", id), { status: "approved" });
-            alert("সফল হয়েছে!");
+            try {
+                await updateDoc(doc(db, "users", uid), { balance: increment(amount), active: true });
+                await updateDoc(doc(db, "transactions", id), { status: "approved" });
+                alert("ডিপোজিট অ্যাপ্রুভ হয়েছে!");
+            } catch(e) { alert("ত্রুটি: " + e.message); }
         };
 
-        // --- 2. উইথড্র ম্যানেজমেন্ট ---
+        // ২. উইথড্র রিকোয়েস্ট লোড করা
         onSnapshot(collection(db, "withdrawals"), (snap) => {
             const list = document.getElementById('withdrawList');
-            list.innerHTML = "";
+            let content = "";
             snap.forEach(d => {
                 const data = d.data();
                 if(data.status === "pending") {
-                    const div = document.createElement('div');
-                    div.className = "card";
-                    div.innerHTML = `
-                        <p>ইমেল: <b>${data.email}</b></p>
-                        <p>নাম্বার: <b>${data.number} (${data.method})</b></p>
-                        <p>পরিমাণ: <b style="color:var(--red)">৳${data.amount}</b></p>
-                        <div class="btn-row">
-                            <button class="btn btn-approve" onclick="updateStatus('withdrawals', '${d.id}', 'paid')">Paid ✅</button>
-                            <button class="btn btn-reject" onclick="deleteReq('withdrawals', '${d.id}')">Reject</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
+                    content += `
+                        <div class="card">
+                            <p>ইমেল: <b>${data.email}</b></p>
+                            <p>নাম্বার: <b>${data.number} (${data.method})</b></p>
+                            <p>পরিমাণ: <b style="color:var(--red)">৳${data.amount}</b></p>
+                            <div class="btn-row">
+                                <button class="btn btn-approve" onclick="updateWithdrawStatus('${d.id}', 'paid')">Paid ✅</button>
+                                <button class="btn btn-reject" onclick="deleteDocReq('withdrawals', '${d.id}')">Reject</button>
+                            </div>
+                        </div>`;
                 }
             });
+            list.innerHTML = content || "<p style='text-align:center;'>কোনো পেন্ডিং উইথড্র নেই।</p>";
         });
 
-        // --- 3. ইউজার ম্যানেজমেন্ট (ম্যানুয়াল ব্যালেন্স ও ব্যান) ---
+        window.updateWithdrawStatus = async (id, status) => {
+            await updateDoc(doc(db, "withdrawals", id), { status: status });
+            alert("স্ট্যাটাস আপডেট হয়েছে!");
+        };
+
+        // ৩. ইউজার লিস্ট ম্যানেজমেন্ট
         onSnapshot(collection(db, "users"), (snap) => {
             const list = document.getElementById('userList');
-            list.innerHTML = "";
+            let content = "";
             snap.forEach(d => {
                 const data = d.data();
-                const div = document.createElement('div');
-                div.className = "card";
-                div.innerHTML = `
-                    <p>নাম: <b>${data.name}</b> ${data.banned ? '<span class="status-badge status-banned">Banned</span>' : '<span class="status-badge status-active">Live</span>'}</p>
-                    <p>ব্যালেন্স: <b style="color:var(--green)">৳${data.balance}</b> | স্ট্যাটাস: <b>${data.active ? 'Active' : 'Inactive'}</b></p>
-                    <div class="btn-row">
-                        <button class="btn btn-action" onclick="adjustBalance('${d.id}', 'add')">+ টাকা</button>
-                        <button class="btn btn-reject" onclick="adjustBalance('${d.id}', 'sub')">- টাকা</button>
-                        <button class="btn btn-approve" onclick="toggleActive('${d.id}', ${data.active})">Active/Deactive</button>
-                        <button class="btn" style="background:black; color:white" onclick="toggleBan('${d.id}', ${data.banned || false})">${data.banned ? 'Unban' : 'Ban User'}</button>
-                    </div>
-                `;
-                list.appendChild(div);
+                content += `
+                    <div class="card">
+                        <p>নাম: <b>${data.name || 'N/A'}</b> | ব্যালেন্স: <b>৳${data.balance}</b></p>
+                        <p>ইমেল: <b>${data.email}</b></p>
+                        <p>স্ট্যাটাস: <b>${data.active ? 'Active ✅' : 'Inactive ❌'}</b> | ব্যান: <b>${data.banned ? 'Yes 🚫' : 'No'}</b></p>
+                        <div class="btn-row">
+                            <button class="btn btn-approve" onclick="adjustUserBal('${d.id}', 100)">+৳১০০</button>
+                            <button class="btn btn-reject" onclick="adjustUserBal('${d.id}', -100)">-৳১০০</button>
+                            <button class="btn" style="background:#64748b; color:white;" onclick="toggleBan('${d.id}', ${data.banned || false})">${data.banned ? 'Unban' : 'Ban'}</button>
+                        </div>
+                    </div>`;
             });
+            list.innerHTML = content || "<p style='text-align:center;'>কোনো ইউজার পাওয়া যায়নি।</p>";
         });
 
-        window.adjustBalance = async (uid, type) => {
-            const amount = prompt("কত টাকা " + (type === 'add' ? "যোগ" : "বিয়োগ") + " করবেন?");
-            if(!amount) return;
-            const val = type === 'add' ? Number(amount) : -Number(amount);
+        window.adjustUserBal = async (uid, val) => {
             await updateDoc(doc(db, "users", uid), { balance: increment(val) });
-            alert("ব্যালেন্স আপডেট হয়েছে!");
         };
 
-        window.toggleBan = async (uid, currentStatus) => {
-            if(confirm(currentStatus ? "ইউজারকে কি আনব্যান করবেন?" : "ইউজারকে কি ব্যান করবেন?")) {
-                await updateDoc(doc(db, "users", uid), { banned: !currentStatus });
-            }
+        window.toggleBan = async (uid, current) => {
+            await updateDoc(doc(db, "users", uid), { banned: !current });
+            alert("ইউজার স্ট্যাটাস পরিবর্তিত হয়েছে।");
         };
 
-        window.toggleActive = async (uid, currentStatus) => {
-            await updateDoc(doc(db, "users", uid), { active: !currentStatus });
-        };
-
-        // --- 4. টাস্ক ম্যানেজমেন্ট ---
+        // ৪. টাস্ক আপডেট
         window.updateTask = async () => {
             const url = document.getElementById('taskUrl').value;
             if(!url) return alert("URL দিন");
             await setDoc(doc(db, "settings", "taskConfig"), { url: url });
-            alert("টাস্ক সফলভাবে আপডেট হয়েছে!");
+            alert("টাস্ক আপডেট সফল!");
         };
 
-        window.updateStatus = async (coll, id, status) => {
-            await updateDoc(doc(db, coll, id), { status: status });
-            alert("স্ট্যাটাস আপডেট হয়েছে!");
+        window.deleteDocReq = async (coll, id) => {
+            if(confirm("ডিলিট করতে চান?")) await deleteDoc(doc(db, coll, id));
         };
-
-        window.deleteReq = async (coll, id) => {
-            if(confirm("এটি ডিলিট করতে চান?")) await deleteDoc(doc(db, coll, id));
-        };
-
     </script>
 </body>
 </html>
-
