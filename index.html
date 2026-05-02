@@ -3,72 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Invest - Pro Admin Control</title>
+    <title>Smart Invest - Master Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --green: #22c55e; --red: #ef4444; --blue: #3b82f6; --bg: #0f172a; --card: #1e293b; }
+        :root { --green: #22c55e; --red: #ef4444; --bg: #0f172a; --card: #1e293b; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
-        body { background: var(--bg); color: white; padding-bottom: 50px; }
-        .header { background: var(--card); padding: 20px; text-align: center; border-bottom: 2px solid var(--green); position: sticky; top: 0; z-index: 100; }
+        body { background: var(--bg); color: white; }
+
+        /* Login UI */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-box { background: var(--card); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        
+        /* Dashboard UI */
+        #adminDashboard { display: none; }
+        .header { background: var(--card); padding: 20px; text-align: center; border-bottom: 2px solid var(--green); position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
         .nav-tabs { display: flex; overflow-x: auto; background: var(--card); padding: 10px; gap: 10px; border-bottom: 1px solid #334155; }
-        .tab-btn { padding: 10px 20px; border: none; border-radius: 10px; background: #334155; color: #cbd5e1; white-space: nowrap; cursor: pointer; font-weight: 600; }
+        .tab-btn { padding: 10px 20px; border: none; border-radius: 10px; background: #334155; color: #cbd5e1; white-space: nowrap; cursor: pointer; font-weight: 600; font-size: 14px; }
         .tab-btn.active { background: var(--green); color: white; }
+        
         .container { padding: 15px; max-width: 600px; margin: 0 auto; }
         .section { display: none; }
         .section.active { display: block; animation: fadeIn 0.3s ease; }
-        .card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #334155; position: relative; }
         .card p { font-size: 14px; margin-bottom: 5px; color: #cbd5e1; }
         .card b { color: white; }
-        .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
-        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; min-width: 80px; }
-        .btn-approve { background: var(--green); color: white; }
-        .btn-reject { background: var(--red); color: white; }
-        .input-group { background: var(--card); padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
-        .input-group input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 15px; outline: none; }
+        
+        .input-group input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 15px; outline: none; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn-green { background: var(--green); color: white; }
+        .btn-green:hover { background: #16a34a; }
+        .btn-logout { background: var(--red); color: white; padding: 8px 15px; width: auto; font-size: 12px; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div class="header"><h2>Master Admin Panel</h2></div>
-
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="openTab(event, 'depositSec')">📥 ডিপোজিট</button>
-        <button class="tab-btn" onclick="openTab(event, 'withdrawSec')">📤 উইথড্র</button>
-        <button class="tab-btn" onclick="openTab(event, 'userSec')">👥 ইউজার ম্যানেজ</button>
-        <button class="tab-btn" onclick="openTab(event, 'taskSec')">🎯 টাস্ক আপডেট</button>
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2 style="margin-bottom: 10px; color: var(--green);">Admin Access</h2>
+            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">আপনার অ্যাডমিন তথ্য দিয়ে প্রবেশ করুন</p>
+            <div class="input-group">
+                <input type="email" id="adminEmail" placeholder="ইমেল" value="Juwelranajoy1971@gmail.com">
+                <input type="password" id="adminPass" placeholder="পাসওয়ার্ড" value="expressVPN##5">
+            </div>
+            <button class="btn btn-green" id="loginBtn">লগইন করুন</button>
+        </div>
     </div>
 
-    <div class="container">
-        <div id="depositSec" class="section active">
-            <h3 style="margin-bottom: 15px;">পেন্ডিং ডিপোজিট</h3>
-            <div id="depositList">ডেটা লোড হচ্ছে...</div>
+    <div id="adminDashboard">
+        <div class="header">
+            <h3 style="color: var(--green);">Admin Panel</h3>
+            <button class="btn btn-logout" onclick="handleLogout()">লগআউট</button>
         </div>
 
-        <div id="withdrawSec" class="section">
-            <h3 style="margin-bottom: 15px;">পেন্ডিং উইথড্র</h3>
-            <div id="withdrawList">ডেটা লোড হচ্ছে...</div>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'depositSec')">📥 ডিপোজিট</button>
+            <button class="tab-btn" onclick="openTab(event, 'withdrawSec')">📤 উইথড্র</button>
+            <button class="tab-btn" onclick="openTab(event, 'userSec')">👥 ইউজার ম্যানেজ</button>
         </div>
 
-        <div id="userSec" class="section">
-            <h3 style="margin-bottom: 15px;">সকল ইউজার</h3>
-            <div id="userList">ডেটা লোড হচ্ছে...</div>
-        </div>
-
-        <div id="taskSec" class="section">
-            <h3 style="margin-bottom: 15px;">টাস্ক লিঙ্ক আপডেট</h3>
-            <div class="input-group">
-                <input type="text" id="taskUrl" placeholder="নতুন টাস্ক লিঙ্ক দিন">
-                <button class="btn btn-approve" onclick="updateTask()">আপডেট করুন</button>
+        <div class="container">
+            <div id="depositSec" class="section active">
+                <h4 style="margin-bottom:15px;">পেন্ডিং ডিপোজিট লিস্ট</h4>
+                <div id="depositList">ডেটা লোড হচ্ছে...</div>
+            </div>
+            <div id="withdrawSec" class="section">
+                <h4 style="margin-bottom:15px;">পেন্ডিং উইথড্র লিস্ট</h4>
+                <div id="withdrawList">ডেটা লোড হচ্ছে...</div>
+            </div>
+            <div id="userSec" class="section">
+                <h4 style="margin-bottom:15px;">সকল ইউজার লিস্ট</h4>
+                <div id="userList">ডেটা লোড হচ্ছে...</div>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, deleteDoc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ফায়ারবেস কনফিগারেশন (আপনার প্রজেক্টের সাথে মিল থাকতে হবে)
         const firebaseConfig = {
             apiKey: "AIzaSyByoyfmwZJyIwYj09NdLwHLpsAVZ0joZq4",
             authDomain: "investmentc12-887a8.firebaseapp.com",
@@ -79,113 +95,107 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
         const db = getFirestore(app);
 
-        // ট্যাব সুইচিং লজিক
-        window.openTab = (evt, sectionId) => {
+        // লগইন স্ট্যাটাস চেক
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                loadAdminData();
+            } else {
+                document.getElementById('loginOverlay').style.display = 'flex';
+                document.getElementById('adminDashboard').style.display = 'none';
+            }
+        });
+
+        // লগইন একশন
+        document.getElementById('loginBtn').onclick = async () => {
+            const e = document.getElementById('adminEmail').value;
+            const p = document.getElementById('adminPass').value;
+            const btn = document.getElementById('loginBtn');
+            btn.innerText = "যাচাই করা হচ্ছে...";
+            try {
+                await signInWithEmailAndPassword(auth, e, p);
+            } catch(err) {
+                alert("লগইন ব্যর্থ! ইমেল বা পাসওয়ার্ড সঠিক নয়।");
+                btn.innerText = "লগইন করুন";
+            }
+        };
+
+        window.handleLogout = () => signOut(auth);
+
+        window.openTab = (evt, id) => {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
+            document.getElementById(id).classList.add('active');
             evt.currentTarget.classList.add('active');
         };
 
-        // ১. ডিপোজিট রিকোয়েস্ট লোড করা
-        onSnapshot(collection(db, "transactions"), (snap) => {
-            const list = document.getElementById('depositList');
-            let content = "";
-            snap.forEach(d => {
-                const data = d.data();
-                if(data.status === "pending") {
-                    content += `
-                        <div class="card">
-                            <p>ইমেল: <b>${data.email}</b></p>
-                            <p>পরিমাণ: <b>৳${data.amount}</b> | TrxID: <b>${data.trxId}</b></p>
-                            <div class="btn-row">
-                                <button class="btn btn-approve" onclick="approveDep('${d.id}', '${data.uid}', ${data.amount})">Approve & Active</button>
-                                <button class="btn btn-reject" onclick="deleteDocReq('transactions', '${d.id}')">Reject</button>
-                            </div>
+        function loadAdminData() {
+            // Real-time Deposit Data
+            onSnapshot(collection(db, "transactions"), (snap) => {
+                const list = document.getElementById('depositList');
+                let html = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    if(data.status === "pending") {
+                        html += `<div class="card">
+                            <p>ইউজার: <b>${data.email}</b></p>
+                            <p>পরিমাণ: ৳<b>${data.amount}</b> | TrxID: <b>${data.trxId}</b></p>
+                            <button class="btn btn-green" style="margin-top:10px; font-size:12px; padding:8px;" onclick="approveDep('${d.id}', '${data.uid}', ${data.amount})">Approve & Active</button>
                         </div>`;
-                }
+                    }
+                });
+                list.innerHTML = html || "<p style='text-align:center; color:#94a3b8;'>কোনো পেন্ডিং ডিপোজিট নেই।</p>";
             });
-            list.innerHTML = content || "<p style='text-align:center;'>কোনো পেন্ডিং ডিপোজিট নেই।</p>";
-        });
 
+            // Real-time Withdrawal Data
+            onSnapshot(collection(db, "withdrawals"), (snap) => {
+                const list = document.getElementById('withdrawList');
+                let html = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    if(data.status === "pending") {
+                        html += `<div class="card">
+                            <p>ইউজার: <b>${data.email}</b></p>
+                            <p>পরিমাণ: ৳<b>${data.amount}</b> | নাম্বার: <b>${data.number}</b></p>
+                            <button class="btn btn-green" style="margin-top:10px; font-size:12px; padding:8px;" onclick="updateStatus('withdrawals', '${d.id}', 'paid')">Paid ✅</button>
+                        </div>`;
+                    }
+                });
+                list.innerHTML = html || "<p style='text-align:center; color:#94a3b8;'>কোনো পেন্ডিং উইথড্র নেই।</p>";
+            });
+
+            // User Management List
+            onSnapshot(collection(db, "users"), (snap) => {
+                const list = document.getElementById('userList');
+                let html = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    html += `<div class="card">
+                        <p>নাম: <b>${data.name}</b> | ব্যালেন্স: ৳<b>${data.balance}</b></p>
+                        <p>ইমেল: <b>${data.email}</b></p>
+                        <p>স্ট্যাটাস: <b>${data.active ? 'Active' : 'Inactive'}</b> | ব্যান: <b>${data.banned ? 'Banned 🚫' : 'Live'}</b></p>
+                    </div>`;
+                });
+                list.innerHTML = html || "কোনো ইউজার নেই।";
+            });
+        }
+
+        // Global Action Functions
         window.approveDep = async (id, uid, amount) => {
-            if(!confirm("ব্যালেন্স যোগ এবং একাউন্ট একটিভ করবেন?")) return;
-            try {
+            if(confirm("অ্যাপ্রুভ করবেন?")) {
                 await updateDoc(doc(db, "users", uid), { balance: increment(amount), active: true });
                 await updateDoc(doc(db, "transactions", id), { status: "approved" });
-                alert("ডিপোজিট অ্যাপ্রুভ হয়েছে!");
-            } catch(e) { alert("ত্রুটি: " + e.message); }
+                alert("সফল হয়েছে!");
+            }
         };
 
-        // ২. উইথড্র রিকোয়েস্ট লোড করা
-        onSnapshot(collection(db, "withdrawals"), (snap) => {
-            const list = document.getElementById('withdrawList');
-            let content = "";
-            snap.forEach(d => {
-                const data = d.data();
-                if(data.status === "pending") {
-                    content += `
-                        <div class="card">
-                            <p>ইমেল: <b>${data.email}</b></p>
-                            <p>নাম্বার: <b>${data.number} (${data.method})</b></p>
-                            <p>পরিমাণ: <b style="color:var(--red)">৳${data.amount}</b></p>
-                            <div class="btn-row">
-                                <button class="btn btn-approve" onclick="updateWithdrawStatus('${d.id}', 'paid')">Paid ✅</button>
-                                <button class="btn btn-reject" onclick="deleteDocReq('withdrawals', '${d.id}')">Reject</button>
-                            </div>
-                        </div>`;
-                }
-            });
-            list.innerHTML = content || "<p style='text-align:center;'>কোনো পেন্ডিং উইথড্র নেই।</p>";
-        });
-
-        window.updateWithdrawStatus = async (id, status) => {
-            await updateDoc(doc(db, "withdrawals", id), { status: status });
-            alert("স্ট্যাটাস আপডেট হয়েছে!");
-        };
-
-        // ৩. ইউজার লিস্ট ম্যানেজমেন্ট
-        onSnapshot(collection(db, "users"), (snap) => {
-            const list = document.getElementById('userList');
-            let content = "";
-            snap.forEach(d => {
-                const data = d.data();
-                content += `
-                    <div class="card">
-                        <p>নাম: <b>${data.name || 'N/A'}</b> | ব্যালেন্স: <b>৳${data.balance}</b></p>
-                        <p>ইমেল: <b>${data.email}</b></p>
-                        <p>স্ট্যাটাস: <b>${data.active ? 'Active ✅' : 'Inactive ❌'}</b> | ব্যান: <b>${data.banned ? 'Yes 🚫' : 'No'}</b></p>
-                        <div class="btn-row">
-                            <button class="btn btn-approve" onclick="adjustUserBal('${d.id}', 100)">+৳১০০</button>
-                            <button class="btn btn-reject" onclick="adjustUserBal('${d.id}', -100)">-৳১০০</button>
-                            <button class="btn" style="background:#64748b; color:white;" onclick="toggleBan('${d.id}', ${data.banned || false})">${data.banned ? 'Unban' : 'Ban'}</button>
-                        </div>
-                    </div>`;
-            });
-            list.innerHTML = content || "<p style='text-align:center;'>কোনো ইউজার পাওয়া যায়নি।</p>";
-        });
-
-        window.adjustUserBal = async (uid, val) => {
-            await updateDoc(doc(db, "users", uid), { balance: increment(val) });
-        };
-
-        window.toggleBan = async (uid, current) => {
-            await updateDoc(doc(db, "users", uid), { banned: !current });
-            alert("ইউজার স্ট্যাটাস পরিবর্তিত হয়েছে।");
-        };
-
-        // ৪. টাস্ক আপডেট
-        window.updateTask = async () => {
-            const url = document.getElementById('taskUrl').value;
-            if(!url) return alert("URL দিন");
-            await setDoc(doc(db, "settings", "taskConfig"), { url: url });
-            alert("টাস্ক আপডেট সফল!");
-        };
-
-        window.deleteDocReq = async (coll, id) => {
-            if(confirm("ডিলিট করতে চান?")) await deleteDoc(doc(db, coll, id));
+        window.updateStatus = async (coll, id, status) => {
+            await updateDoc(doc(db, coll, id), { status: status });
+            alert("আপডেট হয়েছে!");
         };
     </script>
 </body>
