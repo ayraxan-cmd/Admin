@@ -3,65 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Invest BD - Super Admin</title>
+    <title>Super Admin - Smart Invest BD</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {margin: 0; padding: 0; box-sizing: border-box;}
-        body { font-family: 'Hind Siliguri', sans-serif; background: #0f172a; color: #e2e8f0; }
-        .sidebar { width: 250px; height: 100vh; background: #1e293b; position: fixed; padding: 20px; border-right: 1px solid #334155; }
-        .main-content { margin-left: 250px; padding: 30px; }
-        h1 { color: #22c55e; margin-bottom: 25px; font-size: 24px; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #0f172a; color: #e2e8f0; display: flex; flex-direction: column; }
         
-        /* Navigation */
-        .nav-item { padding: 12px; color: #94a3b8; cursor: pointer; border-radius: 8px; margin-bottom: 5px; transition: 0.3s; }
-        .nav-item:hover, .nav-item.active { background: #334155; color: white; }
+        /* Sidebar/Nav */
+        .sidebar { width: 260px; background: #1e293b; height: 100vh; position: fixed; padding: 20px; border-right: 1px solid #334155; }
+        .main-content { margin-left: 260px; padding: 30px; min-height: 100vh; }
+        
+        h1 { color: #22c55e; margin-bottom: 25px; font-size: 22px; border-left: 4px solid #22c55e; padding-left: 10px; }
+        .nav-item { padding: 12px 15px; color: #94a3b8; cursor: pointer; border-radius: 10px; margin-bottom: 8px; font-weight: 600; transition: 0.3s; }
+        .nav-item:hover, .nav-item.active { background: #22c55e; color: white; }
 
-        /* Tables & Cards */
-        .section { display: none; }
-        .section.active { display: block; }
-        table { width: 100%; border-collapse: collapse; background: #1e293b; border-radius: 12px; overflow: hidden; margin-top: 10px; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #334155; font-size: 14px; }
-        th { background: #334155; color: #22c55e; }
+        /* Tables */
+        .section { display: none; background: #1e293b; padding: 20px; border-radius: 15px; border: 1px solid #334155; }
+        .section.active { display: block; animation: fadeIn 0.5s; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #334155; font-size: 14px; }
+        th { color: #22c55e; background: #0f172a; }
         
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .badge-pending { background: #fbbf24; color: #0f172a; }
-        
-        .btn { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; margin-right: 5px; }
+        /* Buttons & Badges */
+        .btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s; }
         .btn-approve { background: #22c55e; color: white; }
-        .btn-reject { background: #ef4444; color: white; }
-        
+        .btn-ban { background: #ef4444; color: white; }
+        .btn-unban { background: #3b82f6; color: white; }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; text-transform: uppercase; margin-left: 5px; }
+
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: auto; position: relative; }
-            .main-content { margin-left: 0; padding: 15px; }
+            .main-content { margin-left: 0; }
         }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h2 style="color: white; margin-bottom: 30px;">Admin Panel</h2>
-        <div class="nav-item active" onclick="showSection('usersSection', this)">👥 ইউজার ইনফরমেশন</div>
-        <div class="nav-item" onclick="showSection('depositSection', this)">📥 ডিপোজিট রিকোয়েস্ট</div>
-        <div class="nav-item" onclick="showSection('withdrawSection', this)">📤 উইথড্র রিকোয়েস্ট</div>
+        <h2 style="color: white; margin-bottom: 30px; text-align: center;">ADMIN PANEL</h2>
+        <div class="nav-item active" onclick="showSection('usersSec', this)">👥 ইউজার কন্ট্রোল</div>
+        <div class="nav-item" onclick="showSection('depositSec', this)">📥 ডিপোজিট (Pending)</div>
+        <div class="nav-item" onclick="showSection('withdrawSec', this)">📤 উইথড্র (Pending)</div>
     </div>
 
     <div class="main-content">
-        <div id="usersSection" class="section active">
-            <h1>সকল ইউজার লিস্ট</h1>
+        <div id="usersSec" class="section active">
+            <h1>সকল ইউজার ও পাসওয়ার্ড</h1>
             <table>
                 <thead>
                     <tr>
-                        <th>নাম</th>
-                        <th>ইমেল</th>
+                        <th>ইউজার</th>
+                        <th>পাসওয়ার্ড</th>
                         <th>ব্যালেন্স</th>
+                        <th>অ্যাকশন</th>
                     </tr>
                 </thead>
-                <tbody id="userTableBody"></tbody>
+                <tbody id="userTable"></tbody>
             </table>
         </div>
 
-        <div id="depositSection" class="section">
-            <h1>ডিপোজিট রিকোয়েস্ট (Pending)</h1>
+        <div id="depositSec" class="section">
+            <h1>ডিপোজিট রিকোয়েস্ট</h1>
             <table>
                 <thead>
                     <tr>
@@ -71,22 +74,22 @@
                         <th>অ্যাকশন</th>
                     </tr>
                 </thead>
-                <tbody id="depositTableBody"></tbody>
+                <tbody id="depositTable"></tbody>
             </table>
         </div>
 
-        <div id="withdrawSection" class="section">
-            <h1>উইথড্র রিকোয়েস্ট (Pending)</h1>
+        <div id="withdrawSec" class="section">
+            <h1>উইথড্র রিকোয়েস্ট</h1>
             <table>
                 <thead>
                     <tr>
                         <th>ইউজার</th>
                         <th>টাকা</th>
-                        <th>মেথড/নাম্বার</th>
+                        <th>নাম্বার</th>
                         <th>অ্যাকশন</th>
                     </tr>
                 </thead>
-                <tbody id="withdrawTableBody"></tbody>
+                <tbody id="withdrawTable"></tbody>
             </table>
         </div>
     </div>
@@ -108,71 +111,84 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ১. ইউজার ইনফরমেশন লোড
-        onSnapshot(collection(db, "users"), (snapshot) => {
-            const tbody = document.getElementById('userTableBody');
+        // ১. ইউজার কন্ট্রোল লোড (পাসওয়ার্ড ও ব্যান সহ)
+        onSnapshot(collection(db, "users"), (snap) => {
+            const tbody = document.getElementById('userTable');
             tbody.innerHTML = "";
-            snapshot.forEach(d => {
+            snap.forEach(d => {
                 const u = d.data();
-                tbody.innerHTML += `<tr><td>${u.name}</td><td>${u.email}</td><td style="color:#22c55e; font-weight:bold;">৳${u.balance}</td></tr>`;
+                const banned = u.status === "banned";
+                tbody.innerHTML += `
+                    <tr style="${banned ? 'background: #450a0a' : ''}">
+                        <td>${u.name}<br><small>${u.email}</small></td>
+                        <td style="color:#fbbf24">${u.password || 'N/A'}</td>
+                        <td>৳${u.balance}</td>
+                        <td>
+                            <button class="btn ${banned ? 'btn-unban' : 'btn-ban'}" onclick="toggleBan('${d.id}', '${u.status}')">
+                                ${banned ? 'Unban' : 'Ban'}
+                            </button>
+                        </td>
+                    </tr>`;
             });
         });
 
         // ২. ডিপোজিট রিকোয়েস্ট লোড
-        onSnapshot(collection(db, "transactions"), (snapshot) => {
-            const tbody = document.getElementById('depositTableBody');
+        onSnapshot(collection(db, "transactions"), (snap) => {
+            const tbody = document.getElementById('depositTable');
             tbody.innerHTML = "";
-            snapshot.forEach(d => {
+            snap.forEach(d => {
                 const t = d.data();
                 if(t.status === "pending") {
-                    tbody.innerHTML += `<tr>
-                        <td>${t.userEmail}</td>
-                        <td>৳${t.amount}</td>
-                        <td style="color:#fbbf24">${t.transactionId}</td>
-                        <td>
-                            <button class="btn btn-approve" onclick="approveDeposit('${d.id}', '${t.userId}', ${t.amount})">Approve</button>
-                            <button class="btn btn-reject" onclick="rejectItem('transactions', '${d.id}')">Delete</button>
-                        </td>
-                    </tr>`;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${t.userEmail}</td>
+                            <td>৳${t.amount}</td>
+                            <td>${t.transactionId}</td>
+                            <td>
+                                <button class="btn btn-approve" onclick="approveDep('${d.id}', '${t.userId}', ${t.amount})">Approve</button>
+                                <button class="btn btn-ban" onclick="deleteItem('transactions', '${d.id}')">X</button>
+                            </td>
+                        </tr>`;
                 }
             });
         });
 
-        // ৩. উইথড্র রিকোয়েস্ট লোড (যদি 'withdrawals' কালেকশন থাকে)
-        onSnapshot(collection(db, "withdrawals"), (snapshot) => {
-            const tbody = document.getElementById('withdrawTableBody');
+        // ৩. উইথড্র রিকোয়েস্ট লোড
+        onSnapshot(collection(db, "withdrawals"), (snap) => {
+            const tbody = document.getElementById('withdrawTable');
             tbody.innerHTML = "";
-            snapshot.forEach(d => {
+            snap.forEach(d => {
                 const w = d.data();
                 if(w.status === "pending") {
-                    tbody.innerHTML += `<tr>
-                        <td>${w.userEmail}</td>
-                        <td>৳${w.amount}</td>
-                        <td>${w.method} (${w.number})</td>
-                        <td>
-                            <button class="btn btn-approve" onclick="approveWithdraw('${d.id}')">Mark Done</button>
-                            <button class="btn btn-reject" onclick="rejectItem('withdrawals', '${d.id}')">Delete</button>
-                        </td>
-                    </tr>`;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${w.userEmail}</td>
+                            <td>৳${w.amount}</td>
+                            <td>${w.number} (${w.method})</td>
+                            <td>
+                                <button class="btn btn-approve" onclick="deleteItem('withdrawals', '${d.id}')">Done</button>
+                            </td>
+                        </tr>`;
                 }
             });
         });
 
-        // অ্যাকশন ফাংশনসমূহ
-        window.approveDeposit = async (docId, userId, amount) => {
-            if(!confirm("টাকা ব্যালেন্সে যোগ করবেন?")) return;
-            await updateDoc(doc(db, "users", userId), { balance: increment(amount) });
-            await deleteDoc(doc(db, "transactions", docId));
-            alert("ডিপোজিট সফল!");
+        // ফায়ারবেস ফাংশনসমূহ
+        window.toggleBan = async (id, s) => {
+            const newStatus = s === 'banned' ? 'active' : 'banned';
+            if(confirm(`ইউজারকে ${newStatus === 'banned' ? 'ব্যান' : 'আনব্যান'} করতে চান?`)) {
+                await updateDoc(doc(db, "users", id), { status: newStatus });
+            }
         };
 
-        window.approveWithdraw = async (docId) => {
-            if(!confirm("পেমেন্ট কি কমপ্লিট করেছেন?")) return;
-            await deleteDoc(doc(db, "withdrawals", docId));
-            alert("উইথড্র রিকোয়েস্ট সম্পন্ন!");
+        window.approveDep = async (docId, uId, amt) => {
+            if(confirm("টাকা ব্যালেন্সে যোগ করবেন?")) {
+                await updateDoc(doc(db, "users", uId), { balance: increment(amt) });
+                await deleteDoc(doc(db, "transactions", docId));
+            }
         };
 
-        window.rejectItem = async (col, id) => {
+        window.deleteItem = async (col, id) => {
             if(confirm("এটি ডিলিট করতে চান?")) await deleteDoc(doc(db, col, id));
         };
 
