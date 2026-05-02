@@ -3,39 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Invest - Admin Pro</title>
+    <title>Smart Invest - Admin Ultimate Control</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #22c55e; --bg: #0f172a; --card: #1e293b; --red: #ef4444; }
+        :root { --primary: #22c55e; --bg: #0f172a; --card: #1e293b; --red: #ef4444; --blue: #3b82f6; --yellow: #facc15; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
-        body { background: var(--bg); color: white; padding: 20px; }
-        .header { background: var(--red); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; font-weight: 800; }
-        .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; }
-        .btn { padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; margin-right: 5px; }
-        .btn-approve { background: var(--primary); color: white; }
-        .btn-reject { background: var(--red); color: white; }
-        .badge { padding: 3px 8px; border-radius: 5px; font-size: 12px; }
-        .pending { background: #f59e0b; }
-        h3 { margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 5px; color: var(--primary); }
+        body { background: var(--bg); color: white; padding: 15px; }
+        .header { background: var(--red); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; font-weight: 800; font-size: 20px; }
+        
+        h3 { margin: 20px 0 10px; color: var(--yellow); border-left: 4px solid var(--primary); padding-left: 10px; font-size: 18px; }
+        .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .flex-buttons { display: flex; gap: 8px; margin-top: 10px; }
+        .btn { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; color: white; font-size: 13px; }
+        
+        .btn-approve { background: var(--primary); }
+        .btn-reject { background: var(--red); }
+        .btn-ban { background: #64748b; }
+        .btn-cut { background: #f97316; }
+
+        .user-info p { font-size: 14px; margin-bottom: 4px; }
+        .balance-tag { color: var(--primary); font-weight: 700; }
+        
+        input { background: #0f172a; border: 1px solid #334155; color: white; padding: 5px; border-radius: 5px; width: 80px; }
     </style>
 </head>
 <body>
 
-    <div class="header">Smart Invest Admin Panel</div>
+    <div class="header">SMART INVEST ADMIN PRO</div>
 
-    <div id="depositSection">
-        <h3>ডিপোজিট রিকোয়েস্ট (অ্যাক্টিভেশন)</h3>
-        <div id="depList">লোডিং...</div>
-    </div>
+    <h3>📥 ডিপোজিট রিকোয়েস্ট (বোনাস সহ)</h3>
+    <div id="depositList">লোডিং...</div>
 
-    <div id="withdrawSection" style="margin-top: 30px;">
-        <h3>উইথড্র রিকোয়েস্ট</h3>
-        <div id="witList">লোডিং...</div>
-    </div>
+    <h3>📤 উইথড্র রিকোয়েস্ট (পাশাপাশি বাটন)</h3>
+    <div id="withdrawList">লোডিং...</div>
+
+    <h3>👥 ইউজার ম্যানেজ (ব্যান ও ব্যালেন্স কাটা)</h3>
+    <div id="userList">লোডিং...</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, getDoc, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyByoyfmwZJyIwYj09NdLwHLpsAVZ0joZq4",
@@ -49,108 +57,108 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ১. ডিপোজিট লোড ও রেফার বোনাস লজিক
+        // --- ১. ডিপোজিট ও রেফার বোনাস লজিক ---
         onSnapshot(query(collection(db, "transactions"), where("status", "==", "pending")), (snap) => {
             let html = "";
             snap.forEach(d => {
                 const data = d.data();
                 html += `
                 <div class="card">
-                    <p>ইউজার: ${data.email}</p>
-                    <p>পরিমাণ: ৳${data.amount} | Trx: ${data.trxId}</p>
-                    <div style="margin-top:10px;">
-                        <button class="btn btn-approve" onclick="approveDeposit('${d.id}', '${data.uid}', ${data.amount})">Approve</button>
-                        <button class="btn btn-reject" onclick="rejectDeposit('${d.id}')">Reject</button>
+                    <p><b>ইমেল:</b> ${data.email}</p>
+                    <p><b>পরিমাণ:</b> ৳${data.amount} | <b>Trx:</b> ${data.trxId}</p>
+                    <div class="flex-buttons">
+                        <button class="btn btn-approve" onclick="approveDeposit('${d.id}', '${data.uid}', ${data.amount})">Approve + Bonus</button>
+                        <button class="btn btn-reject" onclick="processRequest('transactions', '${d.id}', 'rejected')">Reject</button>
                     </div>
                 </div>`;
             });
-            document.getElementById('depList').innerHTML = html || "কোনো রিকোয়েস্ট নেই";
+            document.getElementById('depositList').innerHTML = html || "কোনো রিকোয়েস্ট নেই";
         });
 
-        // ৫-স্তর রেফার বোনাস ডিস্ট্রিবিউশন ফাংশন
-        async function distributeReferBonus(userUid) {
-            const rates = [30, 15, 7.5, 3.75, 1.87]; // ৫ স্তরের বোনাস
-            let currentUid = userUid;
-
+        async function distributeBonus(uid) {
+            const rates = [30, 15, 7.5, 3.7, 1.8]; 
+            let nextUid = uid;
             for (let i = 0; i < rates.length; i++) {
-                const userRef = doc(db, "users", currentUid);
-                const userSnap = await getDoc(userRef);
-                
-                if (!userSnap.exists()) break;
-                const referrerUid = userSnap.data().referrer;
-
-                if (!referrerUid || referrerUid === "") break;
-
-                // রেফারারের অ্যাকাউন্টে বোনাস যোগ করা
-                const referrerRef = doc(db, "users", referrerUid);
-                await updateDoc(referrerRef, {
-                    balance: increment(rates[i])
-                });
-
-                // পরের লেভেলের জন্য বর্তমান রেফারারকে সেট করা
-                currentUid = referrerUid;
+                const s = await getDoc(doc(db, "users", nextUid));
+                if (!s.exists()) break;
+                const ref = s.data().referrer;
+                if (!ref) break;
+                await updateDoc(doc(db, "users", ref), { balance: increment(rates[i]) });
+                nextUid = ref;
             }
         }
 
-        // ডিপোজিট অ্যাপ্রুভ করার সময় রেফার বোনাস কল হবে
-        window.approveDeposit = async (docId, uid, amount) => {
-            if(!confirm("আপনি কি নিশ্চিত? এটি একাউন্ট একটিভ করবে এবং ৫-স্তর বোনাস দিবে।")) return;
-            
-            try {
-                // ১. ট্রানজেকশন স্ট্যাটাস আপডেট
-                await updateDoc(doc(db, "transactions", docId), { status: "approved" });
-
-                // ২. ইউজারের একাউন্ট একটিভ করা ও ব্যালেন্স যোগ (যদি প্রয়োজন হয়)
-                await updateDoc(doc(db, "users", uid), { 
-                    active: true,
-                    balance: increment(amount) // অথবা নির্দিষ্ট কোনো টাস্ক বোনাস
-                });
-
-                // ৩. রেফার বোনাস পাঠানো (৫ স্তর পর্যন্ত)
-                await distributeReferBonus(uid);
-
-                alert("সফলভাবে অ্যাপ্রুভ এবং রেফার বোনাস পাঠানো হয়েছে!");
-            } catch (e) {
-                console.error(e);
-                alert("ত্রুটি হয়েছে!");
-            }
+        window.approveDeposit = async (id, uid, amt) => {
+            if(!confirm("অ্যাপ্রুভ করবেন?")) return;
+            await updateDoc(doc(db, "transactions", id), { status: "approved" });
+            await updateDoc(doc(db, "users", uid), { active: true, balance: increment(amt) });
+            await distributeBonus(uid);
+            alert("সফল!");
         };
 
-        window.rejectDeposit = async (id) => {
-            if(confirm("বাতিল করতে চান?")) {
-                await updateDoc(doc(db, "transactions", id), { status: "rejected" });
-            }
-        };
-
-        // ২. উইথড্র ম্যানেজমেন্ট
+        // --- ২. উইথড্র ম্যানেজমেন্ট (পাশাপাশি বাটন) ---
         onSnapshot(query(collection(db, "withdrawals"), where("status", "==", "pending")), (snap) => {
             let html = "";
             snap.forEach(d => {
                 const data = d.data();
                 html += `
                 <div class="card">
-                    <p>ইউজার: ${data.email}</p>
-                    <p>পরিমাণ: ৳${data.amount} (${data.method})</p>
-                    <p>নাম্বার: ${data.number}</p>
-                    <div style="margin-top:10px;">
-                        <button class="btn btn-approve" onclick="approveWithdraw('${d.id}')">Paid</button>
-                        <button class="btn btn-reject" onclick="rejectWithdraw('${d.id}', '${data.uid}', ${data.amount})">Reject</button>
+                    <p><b>ইউজার:</b> ${data.email}</p>
+                    <p><b>৳${data.amount}</b> (${data.method}) -> ${data.number}</p>
+                    <div class="flex-buttons">
+                        <button class="btn btn-approve" onclick="processRequest('withdrawals', '${d.id}', 'approved')">Paid (Approve)</button>
+                        <button class="btn btn-reject" onclick="rejectWithdraw('${d.id}', '${data.uid}', ${data.amount})">Reject (Refund)</button>
                     </div>
                 </div>`;
             });
-            document.getElementById('witList').innerHTML = html || "কোনো রিকোয়েস্ট নেই";
+            document.getElementById('withdrawList').innerHTML = html || "কোনো রিকোয়েস্ট নেই";
         });
 
-        window.approveWithdraw = async (id) => {
-            await updateDoc(doc(db, "withdrawals", id), { status: "approved" });
-            alert("পেমেন্ট সম্পন্ন!");
+        window.rejectWithdraw = async (id, uid, amt) => {
+            if(!confirm("রিজেক্ট করবেন? টাকা ফেরত যাবে।")) return;
+            await updateDoc(doc(db, "withdrawals", id), { status: "rejected" });
+            await updateDoc(doc(db, "users", uid), { balance: increment(amt) });
         };
 
-        window.rejectWithdraw = async (id, uid, amount) => {
-            // রিজেক্ট করলে ইউজারের ব্যালেন্স ফেরত দেওয়া
-            await updateDoc(doc(db, "withdrawals", id), { status: "rejected" });
-            await updateDoc(doc(db, "users", uid), { balance: increment(amount) });
-            alert("রিজেক্ট করা হয়েছে এবং ব্যালেন্স ফেরত দেওয়া হয়েছে।");
+        // --- ৩. ইউজার ম্যানেজমেন্ট (ব্যান, একটিভ, ব্যালেন্স কাটা) ---
+        onSnapshot(collection(db, "users"), (snap) => {
+            let html = "";
+            snap.forEach(d => {
+                const data = d.data();
+                html += `
+                <div class="card">
+                    <div class="user-info">
+                        <p><b>নাম:</b> ${data.name} <span class="balance-tag">| ৳${data.balance.toFixed(2)}</span></p>
+                        <p style="font-size:11px;">ID: ${d.id}</p>
+                        <p>স্ট্যাটাস: ${data.active ? '✅ Active' : '❌ Banned/Inactive'}</p>
+                    </div>
+                    <div class="flex-buttons">
+                        <button class="btn btn-ban" onclick="toggleUser('${d.id}', ${!data.active})">${data.active ? 'Ban' : 'Active'}</button>
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <input type="number" id="cut_${d.id}" placeholder="৳">
+                            <button class="btn btn-cut" onclick="cutBalance('${d.id}')">কাটা</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('userList').innerHTML = html;
+        });
+
+        window.toggleUser = async (id, status) => {
+            await updateDoc(doc(db, "users", id), { active: status });
+        };
+
+        window.cutBalance = async (id) => {
+            const amt = document.getElementById('cut_'+id).value;
+            if(!amt || amt <= 0) return alert("সঠিক পরিমাণ দিন");
+            await updateDoc(doc(db, "users", id), { balance: increment(-Number(amt)) });
+            alert("ব্যালেন্স কাটা হয়েছে");
+            document.getElementById('cut_'+id).value = "";
+        };
+
+        window.processRequest = async (col, id, stat) => {
+            await updateDoc(doc(db, col, id), { status: stat });
+            alert("আপডেট হয়েছে");
         };
 
     </script>
