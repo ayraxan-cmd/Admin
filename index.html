@@ -3,57 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Smart Invest BD</title>
+    <title>Admin Dashboard - Smart Invest BD</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #22c55e; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); padding-bottom: 50px; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
 
-        .header { padding: 20px; background: var(--card); text-align: center; border-bottom: 1px solid #334155; }
-        .container { padding: 15px; max-width: 500px; margin: 0 auto; }
+        /* Navigation Bar */
+        .admin-nav { 
+            display: flex; justify-content: space-around; background: var(--card); 
+            padding: 15px 0; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #334155;
+        }
+        .nav-item { color: #94a3b8; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.3s; }
+        .nav-item.active { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 5px; }
 
-        /* Modern Card UI */
-        .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-top: 20px; }
-        .card-title { color: var(--primary); font-size: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+        .section { display: none; animation: fadeIn 0.4s ease; }
+        .section.active { display: block; }
+
+        /* Cards & Tables */
+        .card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+        h2 { font-size: 20px; color: var(--primary); margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 10px; }
         
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px; }
-        .input-group input { width: 100%; padding: 15px; background: #0f172a; border: 2px solid #334155; border-radius: 12px; color: white; transition: 0.3s; }
-        .input-group input:focus { border-color: var(--primary); outline: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #334155; }
+        th { color: #94a3b8; }
 
-        .btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); }
-        .btn:active { transform: scale(0.98); }
+        /* Inputs & Buttons */
+        input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; margin-bottom: 15px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-prime { background: var(--primary); color: white; }
+        .btn-action { padding: 5px 10px; font-size: 12px; border-radius: 5px; margin-right: 5px; }
+        .btn-approve { background: #10b981; color: white; }
+        .btn-delete { background: #ef4444; color: white; }
 
-        .hint { font-size: 12px; color: #64748b; margin-top: 15px; line-height: 1.6; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2 style="color: var(--primary);">অ্যাডমিন প্যানেল</h2>
+    <div class="admin-nav">
+        <div class="nav-item active" onclick="showSection('taskSec', this)">টাস্ক</div>
+        <div class="nav-item" onclick="showSection('userSec', this)">ইউজার</div>
+        <div class="nav-item" onclick="showSection('depSec', this)">ডিপোজিট</div>
+        <div class="nav-item" onclick="showSection('witSec', this)">উইথড্র</div>
     </div>
 
     <div class="container">
-        <div class="card">
-            <div class="card-title">🎯 ডেইলি টাস্ক কন্ট্রোল</div>
-            <div class="input-group">
-                <label>ইউজারের জন্য নতুন কাজের লিংক দিন:</label>
+        
+        <div id="taskSec" class="section active">
+            <div class="card">
+                <h2>🎯 ডেইলি টাস্ক কন্ট্রোল</h2>
+                <label style="font-size: 14px; color:#94a3b8;">কাজের লিংক:</label>
                 <input type="text" id="taskUrlInput" placeholder="https://youtube.com/...">
-            </div>
-            <button class="btn" onclick="updateTaskLink()">লিংক আপডেট করুন</button>
-            <div class="hint">
-                * এখানে দেওয়া লিংকটি ইউজারের টাস্ক বাটনে সেট হয়ে যাবে।<br>
-                * ইউজার লিংকে ক্লিক করে ৫ সেকেন্ড থাকলেই তার ব্যালেন্সে ১০ টাকা অটো যোগ হবে।
+                <button class="btn btn-prime" onclick="updateTaskLink()">লিংক আপডেট করুন</button>
             </div>
         </div>
+
+        <div id="userSec" class="section">
+            <div class="card">
+                <h2>👥 ইউজার ম্যানেজমেন্ট</h2>
+                <table>
+                    <thead>
+                        <tr><th>নাম/ইমেল</th><th>ব্যালেন্স</th><th>অ্যাকশন</th></tr>
+                    </thead>
+                    <tbody id="userTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="depSec" class="section">
+            <div class="card">
+                <h2>📥 পেমেন্ট রিকোয়েস্ট</h2>
+                <table>
+                    <thead>
+                        <tr><th>ইমেল</th><th>পরিমাণ</th><th>TrxID</th><th>অ্যাকশন</th></tr>
+                    </thead>
+                    <tbody id="depositTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="witSec" class="section">
+            <div class="card">
+                <h2>📤 উইথড্র রিকোয়েস্ট</h2>
+                <table>
+                    <thead>
+                        <tr><th>ইমেল</th><th>পরিমাণ</th><th>নাম্বার</th><th>অ্যাকশন</th></tr>
+                    </thead>
+                    <tbody id="withdrawTable"></tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // আপনার Firebase Config দিন
         const firebaseConfig = {
             apiKey: "AIzaSyByoyfmwZJyIwYj09NdLwHLpsAVZ0joZq4",
             authDomain: "investmentc12-887a8.firebaseapp.com",
@@ -66,34 +115,84 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // টাস্ক লিংক আপডেট ফাংশন (FIXED)
-        window.updateTaskLink = async () => {
-            const url = document.getElementById('taskUrlInput').value;
-            if(!url) return alert("অনুগ্রহ করে একটি সঠিক লিংক দিন!");
-            
-            try {
-                // 'settings' কালেকশনের 'taskConfig' ডকুমেন্টে সেভ করা হচ্ছে
-                await setDoc(doc(db, "settings", "taskConfig"), { 
-                    url: url,
-                    updatedAt: new Date().toISOString()
-                }, { merge: true });
-                
-                alert("সাফল্য! টাস্ক লিংকটি আপডেট করা হয়েছে।");
-            } catch (error) {
-                console.error("Error updating task: ", error);
-                alert("আপডেট করতে সমস্যা হয়েছে! ইন্টারনেট কানেকশন চেক করুন।");
-            }
+        // --- Navigation Logic ---
+        window.showSection = (id, el) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
         };
 
-        // বর্তমান লিংকটি ইনপুট ফিল্ডে লোড করা
-        const loadCurrentTask = async () => {
-            const docRef = doc(db, "settings", "taskConfig");
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                document.getElementById('taskUrlInput').value = docSnap.data().url;
-            }
+        // --- Task Control ---
+        window.updateTaskLink = async () => {
+            const url = document.getElementById('taskUrlInput').value;
+            await setDoc(doc(db, "settings", "taskConfig"), { url: url }, { merge: true });
+            alert("টাস্ক লিংক আপডেট হয়েছে!");
         };
-        loadCurrentTask();
+
+        // --- User List ---
+        onSnapshot(collection(db, "users"), (snap) => {
+            const table = document.getElementById('userTable');
+            table.innerHTML = "";
+            snap.forEach(d => {
+                const u = d.data();
+                table.innerHTML += `<tr>
+                    <td>${u.name}<br><small>${u.email}</small></td>
+                    <td>৳${u.balance}</td>
+                    <td><button class="btn-action btn-delete" onclick="deleteUser('${d.id}')">ব্যান</button></td>
+                </tr>`;
+            });
+        });
+
+        // --- Deposit Management ---
+        onSnapshot(collection(db, "transactions"), (snap) => {
+            const table = document.getElementById('depositTable');
+            table.innerHTML = "";
+            snap.forEach(d => {
+                const t = d.data();
+                if(t.status === "pending") {
+                    table.innerHTML += `<tr>
+                        <td>${t.userEmail}</td>
+                        <td>৳${t.amount}</td>
+                        <td><small>${t.transactionId}</small></td>
+                        <td><button class="btn-action btn-approve" onclick="approveDep('${d.id}', '${t.userId}', ${t.amount})">Approve</button></td>
+                    </tr>`;
+                }
+            });
+        });
+
+        // --- Withdraw Management ---
+        onSnapshot(collection(db, "withdrawals"), (snap) => {
+            const table = document.getElementById('withdrawTable');
+            table.innerHTML = "";
+            snap.forEach(d => {
+                const w = d.data();
+                if(w.status === "pending") {
+                    table.innerHTML += `<tr>
+                        <td>${w.userEmail}</td>
+                        <td>৳${w.amount}</td>
+                        <td>${w.number}</td>
+                        <td><button class="btn-action btn-approve" onclick="completeWit('${d.id}')">Done</button></td>
+                    </tr>`;
+                }
+            });
+        });
+
+        // --- Action Functions ---
+        window.approveDep = async (docId, uId, amt) => {
+            await updateDoc(doc(db, "users", uId), { balance: increment(amt) });
+            await deleteDoc(doc(db, "transactions", docId));
+            alert("ডিপোজিট সফল!");
+        };
+
+        window.completeWit = async (id) => {
+            await deleteDoc(doc(db, "withdrawals", id));
+            alert("উইথড্র সম্পন্ন!");
+        };
+
+        window.deleteUser = async (id) => {
+            if(confirm("এই ইউজারকে কি ব্যান করতে চান?")) await deleteDoc(doc(db, "users", id));
+        };
     </script>
 </body>
 </html>
