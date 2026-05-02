@@ -3,122 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Admin - Smart Invest BD</title>
+    <title>Admin - Smart Invest BD</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {margin: 0; padding: 0; box-sizing: border-box;}
-        body { font-family: 'Hind Siliguri', sans-serif; background: #0f172a; color: #e2e8f0; display: flex; }
+        :root { --primary: #22c55e; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 50px; }
+
+        .header { padding: 20px; background: var(--card); text-align: center; border-bottom: 1px solid #334155; }
+        .container { padding: 15px; max-width: 500px; margin: 0 auto; }
+
+        /* Modern Card UI */
+        .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-top: 20px; }
+        .card-title { color: var(--primary); font-size: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         
-        /* Sidebar */
-        .sidebar { width: 260px; background: #1e293b; height: 100vh; position: fixed; padding: 20px; border-right: 1px solid #334155; }
-        .sidebar h2 { color: #22c55e; text-align: center; margin-bottom: 30px; font-size: 20px; }
-        .nav-item { padding: 12px 15px; color: #94a3b8; cursor: pointer; border-radius: 10px; margin-bottom: 8px; font-weight: 600; transition: 0.3s; }
-        .nav-item:hover, .nav-item.active { background: #22c55e; color: white; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px; }
+        .input-group input { width: 100%; padding: 15px; background: #0f172a; border: 2px solid #334155; border-radius: 12px; color: white; transition: 0.3s; }
+        .input-group input:focus { border-color: var(--primary); outline: none; }
 
-        /* Main Content */
-        .main-content { margin-left: 260px; padding: 30px; width: calc(100% - 260px); }
-        .section { display: none; background: #1e293b; padding: 25px; border-radius: 15px; border: 1px solid #334155; animation: fadeIn 0.4s; }
-        .section.active { display: block; }
-        
-        h1 { font-size: 22px; color: #fff; margin-bottom: 20px; border-left: 4px solid #22c55e; padding-left: 10px; }
+        .btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); }
+        .btn:active { transform: scale(0.98); }
 
-        /* Task Control Box */
-        .config-box { background: #0f172a; padding: 20px; border-radius: 12px; margin-bottom: 25px; border: 1px dashed #22c55e; }
-        .config-box input { width: 70%; padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: white; margin-right: 10px; }
-
-        /* Tables */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 14px; }
-        th { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
-        
-        /* Buttons */
-        .btn { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; transition: 0.2s; }
-        .btn-save { background: #22c55e; color: white; }
-        .btn-ban { background: #ef4444; color: white; }
-        .btn-unban { background: #3b82f6; color: white; }
-        .btn-approve { background: #10b981; color: white; }
-
-        @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; padding: 10px; }
-            .sidebar h2, .nav-item span { display: none; }
-            .main-content { margin-left: 70px; width: calc(100% - 70px); }
-        }
+        .hint { font-size: 12px; color: #64748b; margin-top: 15px; line-height: 1.6; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>ADMIN PANEL</h2>
-        <div class="nav-item active" onclick="showSection('taskSec', this)">🎯 টাস্ক সেটিংস</div>
-        <div class="nav-item" onclick="showSection('userSec', this)">👥 ইউজার ম্যানেজ</div>
-        <div class="nav-item" onclick="showSection('depSec', this)">📥 ডিপোজিট লিস্ট</div>
-        <div class="nav-item" onclick="showSection('witSec', this)">📤 উইথড্র লিস্ট</div>
+    <div class="header">
+        <h2 style="color: var(--primary);">অ্যাডমিন প্যানেল</h2>
     </div>
 
-    <div class="main-content">
-        
-        <div id="taskSec" class="section active">
-            <h1>ডেইলি টাস্ক কন্ট্রোল</h1>
-            <div class="config-box">
-                <p style="margin-bottom: 10px; color: #94a3b8;">ইউজারের জন্য কাজের লিংক দিন:</p>
-                <input type="text" id="taskUrlInput" placeholder="https://youtube.com/c/yourlink">
-                <button class="btn btn-save" onclick="updateTaskLink()">লিংক আপডেট করুন</button>
+    <div class="container">
+        <div class="card">
+            <div class="card-title">🎯 ডেইলি টাস্ক কন্ট্রোল</div>
+            <div class="input-group">
+                <label>ইউজারের জন্য নতুন কাজের লিংক দিন:</label>
+                <input type="text" id="taskUrlInput" placeholder="https://youtube.com/...">
             </div>
-            <p style="font-size: 13px; color: #64748b;">* ইউজার লিংকে ক্লিক করে ৫ সেকেন্ড থাকলেই তার ব্যালেন্সে ১০ টাকা অটো যোগ হবে।</p>
+            <button class="btn" onclick="updateTaskLink()">লিংক আপডেট করুন</button>
+            <div class="hint">
+                * এখানে দেওয়া লিংকটি ইউজারের টাস্ক বাটনে সেট হয়ে যাবে।<br>
+                * ইউজার লিংকে ক্লিক করে ৫ সেকেন্ড থাকলেই তার ব্যালেন্সে ১০ টাকা অটো যোগ হবে।
+            </div>
         </div>
-
-        <div id="userSec" class="section">
-            <h1>ইউজার লিস্ট ও পাসওয়ার্ড</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ইউজার তথ্য</th>
-                        <th>পাসওয়ার্ড</th>
-                        <th>ব্যালেন্স</th>
-                        <th>অ্যাকশন</th>
-                    </tr>
-                </thead>
-                <tbody id="userTableBody"></tbody>
-            </table>
-        </div>
-
-        <div id="depSec" class="section">
-            <h1>ডিপোজিট রিকোয়েস্ট (Pending)</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ইমেল</th>
-                        <th>পরিমাণ</th>
-                        <th>TrxID</th>
-                        <th>অ্যাকশন</th>
-                    </tr>
-                </thead>
-                <tbody id="depositTable"></tbody>
-            </table>
-        </div>
-
-        <div id="witSec" class="section">
-            <h1>উইথড্র রিকোয়েস্ট (Pending)</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ইমেল</th>
-                        <th>পরিমাণ</th>
-                        <th>নাম্বার</th>
-                        <th>অ্যাকশন</th>
-                    </tr>
-                </thead>
-                <tbody id="withdrawTable"></tbody>
-            </table>
-        </div>
-
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // আপনার Firebase Config দিন
         const firebaseConfig = {
             apiKey: "AIzaSyByoyfmwZJyIwYj09NdLwHLpsAVZ0joZq4",
             authDomain: "investmentc12-887a8.firebaseapp.com",
@@ -131,106 +66,34 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ১. টাস্ক লিংক আপডেট ফাংশন
+        // টাস্ক লিংক আপডেট ফাংশন (FIXED)
         window.updateTaskLink = async () => {
             const url = document.getElementById('taskUrlInput').value;
-            if(!url) return alert("লিংক দিন!");
-            await setDoc(doc(db, "settings", "taskConfig"), { url: url });
-            alert("টাস্ক লিংক সফলভাবে আপডেট হয়েছে!");
-        };
-
-        // বর্তমান টাস্ক লিংক লোড করা
-        getDoc(doc(db, "settings", "taskConfig")).then(s => {
-            if(s.exists()) document.getElementById('taskUrlInput').value = s.data().url;
-        });
-
-        // ২. ইউজার লিস্ট লোড (পাসওয়ার্ড ও ব্যান সহ)
-        onSnapshot(collection(db, "users"), (snap) => {
-            const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = "";
-            snap.forEach(d => {
-                const u = d.data();
-                const isBanned = u.status === "banned";
-                tbody.innerHTML += `
-                    <tr style="${isBanned ? 'opacity: 0.5; background: #450a0a' : ''}">
-                        <td><b>${u.name}</b><br><small>${u.email}</small></td>
-                        <td style="color:#fbbf24; font-family:monospace;">${u.password || 'N/A'}</td>
-                        <td style="color:#22c55e;">৳${u.balance}</td>
-                        <td>
-                            <button class="btn ${isBanned ? 'btn-unban' : 'btn-ban'}" onclick="toggleBan('${d.id}', '${u.status}')">
-                                ${isBanned ? 'Unban' : 'Ban'}
-                            </button>
-                        </td>
-                    </tr>`;
-            });
-        });
-
-        // ৩. ডিপোজিট রিকোয়েস্ট ম্যানেজমেন্ট
-        onSnapshot(collection(db, "transactions"), (snap) => {
-            const tbody = document.getElementById('depositTable');
-            tbody.innerHTML = "";
-            snap.forEach(d => {
-                const t = d.data();
-                if(t.status === "pending") {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${t.userEmail}</td>
-                            <td>৳${t.amount}</td>
-                            <td>${t.transactionId}</td>
-                            <td>
-                                <button class="btn btn-approve" onclick="approveDep('${d.id}', '${t.userId}', ${t.amount})">Approve</button>
-                                <button class="btn btn-ban" onclick="deleteDocItem('transactions', '${d.id}')">Del</button>
-                            </td>
-                        </tr>`;
-                }
-            });
-        });
-
-        // ৪. উইথড্র রিকোয়েস্ট ম্যানেজমেন্ট
-        onSnapshot(collection(db, "withdrawals"), (snap) => {
-            const tbody = document.getElementById('withdrawTable');
-            tbody.innerHTML = "";
-            snap.forEach(d => {
-                const w = d.data();
-                if(w.status === "pending") {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${w.userEmail}</td>
-                            <td>৳${w.amount}</td>
-                            <td>${w.number}</td>
-                            <td>
-                                <button class="btn btn-approve" onclick="deleteDocItem('withdrawals', '${d.id}')">Done</button>
-                            </td>
-                        </tr>`;
-                }
-            });
-        });
-
-        // ফায়ারবেস অ্যাকশন ফাংশনসমূহ
-        window.toggleBan = async (id, s) => {
-            const newStatus = s === 'banned' ? 'active' : 'banned';
-            await updateDoc(doc(db, "users", id), { status: newStatus });
-        };
-
-        window.approveDep = async (docId, uId, amt) => {
-            if(confirm("টাকা ব্যালেন্সে যোগ করবেন?")) {
-                await updateDoc(doc(db, "users", uId), { balance: increment(amt) });
-                await deleteDoc(doc(db, "transactions", docId));
-                alert("অ্যাপ্রুভড!");
+            if(!url) return alert("অনুগ্রহ করে একটি সঠিক লিংক দিন!");
+            
+            try {
+                // 'settings' কালেকশনের 'taskConfig' ডকুমেন্টে সেভ করা হচ্ছে
+                await setDoc(doc(db, "settings", "taskConfig"), { 
+                    url: url,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                
+                alert("সাফল্য! টাস্ক লিংকটি আপডেট করা হয়েছে।");
+            } catch (error) {
+                console.error("Error updating task: ", error);
+                alert("আপডেট করতে সমস্যা হয়েছে! ইন্টারনেট কানেকশন চেক করুন।");
             }
         };
 
-        window.deleteDocItem = async (col, id) => {
-            if(confirm("নিশ্চিত তো?")) await deleteDoc(doc(db, col, id));
+        // বর্তমান লিংকটি ইনপুট ফিল্ডে লোড করা
+        const loadCurrentTask = async () => {
+            const docRef = doc(db, "settings", "taskConfig");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                document.getElementById('taskUrlInput').value = docSnap.data().url;
+            }
         };
-
-        // UI কন্ট্রোল
-        window.showSection = (id, el) => {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            el.classList.add('active');
-        };
+        loadCurrentTask();
     </script>
 </body>
 </html>
