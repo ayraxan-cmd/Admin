@@ -101,42 +101,71 @@
             evt.currentTarget.classList.add("active");
         };
 
+        // ৫-স্তর রেফার বোনাস ফাংশন
         async function distributeReferBonus(uid) {
-            const levels = [15, 10, 5, 2, 1]; 
+            const levels = [15, 10, 5, 2, 1]; // কমিশন হার
             let currentUid = uid;
             for (let i = 0; i < levels.length; i++) {
                 const userSnap = await getDoc(doc(db, "users", currentUid));
                 if (!userSnap.exists()) break;
                 const referrerUid = userSnap.data().referrer;
-                if (!referrerUid) break;
-                await updateDoc(doc(db, "users", referrerUid), { balance: increment(levels[i]) });
-                currentUid = referrerUid;
+                if (!referrerUid || referrerUid === "") break;
+
+                // রেফারারকে বোনাস দেওয়া
+                await updateDoc(doc(db, "users", referrerUid), { 
+                    balance: increment(levels[i]) 
+                });
+                currentUid = referrerUid; // পরের স্তরের জন্য
             }
         }
 
-        // ডিপোজিট লিস্ট
+        // ডিপোজিট ম্যানেজমেন্ট
         onSnapshot(query(collection(db, "transactions"), where("status", "==", "pending")), (snap) => {
             let html = "";
             snap.forEach(d => {
                 const data = d.data();
-                html += `<div class="card"><p><b>UID:</b> ${data.uid}</p><p><b>Amount:</b> ৳${data.amount} | <b>Trx:</b> ${data.trxId}</p>
-                <div class="flex-buttons">
-                    <button class="btn btn-approve" onclick="approveDep('${d.id}', '${data.uid}', ${data.amount})">Approve</button>
-                    <button class="btn btn-reject" onclick="updateStat('transactions', '${d.id}', 'rejected')">Reject</button>
-                </div></div>`;
+                html += `
+                <div class="card">
+                    <p><b>UID:</b> ${data.uid}</p>
+                    <p><b>Amount:</b> ৳${data.amount} | <b>Trx:</b> ${data.trxId}</p>
+                    <div class="flex-buttons">
+                        <button class="btn btn-approve" onclick="approveDep('${d.id}', '${data.uid}', ${data.amount})">Approve + Bonus</button>
+                        <button class="btn btn-reject" onclick="updateStat('transactions', '${d.id}', 'rejected')">Reject</button>
+                    </div>
+                </div>`;
             });
             document.getElementById('depositList').innerHTML = html || "পেন্ডিং নেই";
         });
 
         window.approveDep = async (id, uid, amt) => {
-            if(!confirm("অ্যাপ্রুভ করবেন?")) return;
-            await updateDoc(doc(db, "transactions", id), { status: "approved" });
-            await updateDoc(doc(db, "users", uid), { active: true, balance: increment(amt) });
-            await distributeReferBonus(uid);
-            alert("সফল!");
+            if(!confirm("অ্যাপ্রুভ করবেন? প্রথম ডিপোজিট হলে রেফার বোনাস ডিস্ট্রিবিউট হবে।")) return;
+            
+            const userRef = doc(db, "users", uid);
+            const userSnap = await getDoc(userRef);
+            
+            if(userSnap.exists()) {
+                const userData = userSnap.data();
+                
+                // ১. লেনদেন স্ট্যাটাস আপডেট
+                await updateDoc(doc(db, "transactions", id), { status: "approved" });
+                
+                // ২. ইউজারের ব্যালেন্স যোগ ও একটিভ করা
+                await updateDoc(userRef, { 
+                    active: true, 
+                    balance: increment(amt) 
+                });
+
+                // ৩. যদি এটি ইউজারের প্রথম ডিপোজিট হয় (active ছিল না আগে)
+                if (!userData.active) {
+                    await distributeReferBonus(uid);
+                    alert("ডিপোজিট অ্যাপ্রুভ এবং রেফার বোনাস পাঠানো হয়েছে!");
+                } else {
+                    alert("ডিপোজিট অ্যাপ্রুভ হয়েছে (পুরাতন ইউজার হওয়ায় রেফার বোনাস দেওয়া হয়নি)।");
+                }
+            }
         };
 
-        // উইথড্র লিস্ট
+        // উইথড্র ম্যানেজমেন্ট
         onSnapshot(query(collection(db, "withdrawals"), where("status", "==", "pending")), (snap) => {
             let html = "";
             snap.forEach(d => {
@@ -151,7 +180,7 @@
         });
 
         window.rejectWit = async (id, uid, amt) => {
-            if(!confirm("রিজেক্ট করবেন?")) return;
+            if(!confirm("রিজেক্ট করবেন? ব্যালেন্স ব্যাক হবে।")) return;
             await updateDoc(doc(db, "withdrawals", id), { status: "rejected" });
             await updateDoc(doc(db, "users", uid), { balance: increment(amt) });
         };
@@ -166,7 +195,7 @@
             document.getElementById('userList').innerHTML = html;
         });
 
-        // --- সার্চ ফাংশন ও স্পেশাল কন্ট্রোল ---
+        // ইউজার সার্চ ফাংশন
         window.searchUser = async () => {
             const term = document.getElementById('searchInput').value.trim();
             if(!term) return alert("কিছু লিখুন!");
@@ -179,36 +208,22 @@
             snapN.forEach(d => userDoc = d);
             if(!userDoc) snapE.forEach(d => userDoc = d);
 
-            if(!userDoc) {
-                document.getElementById('searchResult').innerHTML = "ইউজার পাওয়া যায়নি!";
-                return;
-            }
+            if(!userDoc) return alert("ইউজার পাওয়া যায়নি!");
 
             const data = userDoc.data();
             const uid = userDoc.id;
 
             let html = `
             <div class="card" style="border: 1px solid var(--primary)">
-                <h4 style="color:var(--primary)">${data.name}</h4>
+                <h4>${data.name}</h4>
                 <p class="info-label">ইমেল: ${data.email}</p>
-                <p class="info-label">UID: ${uid}</p>
                 <h3 style="margin:10px 0">ব্যালেন্স: ৳${data.balance.toFixed(2)}</h3>
-                <p>স্ট্যাটাস: ${data.active ? '✅ Active' : '❌ Banned/Inactive'}</p>
-                
-                <hr style="margin:15px 0; border:0; border-top:1px solid #334155">
-                
-                <div class="input-group">
-                    <input type="number" id="modAmount" placeholder="টাকার পরিমাণ লিখুন">
-                </div>
+                <p>স্ট্যাটাস: ${data.active ? '✅ Active' : '❌ Inactive'}</p>
+                <input type="number" id="modAmount" placeholder="টাকার পরিমাণ" style="margin-top:10px">
                 <div class="flex-buttons">
-                    <button class="btn btn-add" onclick="modifyBalance('${uid}', 'add')">৳ যোগ করুন</button>
-                    <button class="btn btn-cut" onclick="modifyBalance('${uid}', 'cut')">৳ কেটে নিন</button>
-                </div>
-                
-                <div class="flex-buttons" style="margin-top:15px">
-                    <button class="btn btn-ban" onclick="changeUserStatus('${uid}', ${!data.active})">
-                        ${data.active ? 'ইউজার ব্যান করুন' : 'অ্যাক্টিভ করুন'}
-                    </button>
+                    <button class="btn btn-add" onclick="modifyBalance('${uid}', 'add')">যোগ</button>
+                    <button class="btn btn-cut" onclick="modifyBalance('${uid}', 'cut')">কাটা</button>
+                    <button class="btn btn-ban" onclick="changeUserStatus('${uid}', ${!data.active})">${data.active ? 'ব্যান' : 'একটিভ'}</button>
                 </div>
             </div>`;
             document.getElementById('searchResult').innerHTML = html;
@@ -216,20 +231,17 @@
 
         window.modifyBalance = async (uid, type) => {
             const amt = Number(document.getElementById('modAmount').value);
-            if(!amt || amt <= 0) return alert("সঠিক পরিমাণ দিন");
-            const finalAmt = type === 'add' ? amt : -amt;
-            await updateDoc(doc(db, "users", uid), { balance: increment(finalAmt) });
-            alert(type === 'add' ? "টাকা যোগ হয়েছে" : "টাকা কাটা হয়েছে");
-            searchUser(); // রিফ্রেশ রেজাল্ট
+            if(!amt) return alert("পরিমাণ দিন");
+            await updateDoc(doc(db, "users", uid), { balance: increment(type === 'add' ? amt : -amt) });
+            alert("সফল!"); searchUser();
         };
 
-        window.changeUserStatus = async (uid, status) => {
-            await updateDoc(doc(db, "users", uid), { active: status });
-            alert("স্ট্যাটাস আপডেট হয়েছে");
-            searchUser();
+        window.changeUserStatus = async (uid, s) => {
+            await updateDoc(doc(db, "users", uid), { active: s });
+            alert("আপডেট হয়েছে"); searchUser();
         };
 
-        window.updateStat = async (col, id, s) => { await updateDoc(doc(db, col, id), { status: s }); alert("আপডেট হয়েছে"); };
+        window.updateStat = async (col, id, s) => { await updateDoc(doc(db, col, id), { status: s }); alert("সফল!"); };
     </script>
 </body>
 </html>
